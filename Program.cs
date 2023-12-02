@@ -2,7 +2,7 @@
 
 RsaKeyGenerator rsaKeyGenerator = new();
 
-JwtTokenManager jWTTokenManager = new(rsaKeyGenerator.PrivateKeyPEM());
+JwtTokenManager jWTTokenManager = new(rsaKeyGenerator.GetPrivateKeyPEM());
 
 
 
@@ -10,6 +10,6 @@ Console.WriteLine("Token: " + jWTTokenManager.Token);
 
 Console.WriteLine("Token plain text: " + jWTTokenManager.DecodeToken());  
 
-Console.WriteLine("Public key: " + rsaKeyGenerator.PublicKeyPem());
+Console.WriteLine("Public key: " + rsaKeyGenerator.GetPublicKeyPem());
 
-Console.WriteLine("Token is valid: " + jWTTokenManager.ValidateToken());
+Console.WriteLine("Token is valid: " + jWTTokenManager.ValidateToken(rsaKeyGenerator.GetPublicKeyPem()));
