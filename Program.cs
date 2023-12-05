@@ -45,6 +45,11 @@ else {
     Console.WriteLine("Public key: " + rsaKeyGenerator.GetPublicKeyPem());
 
     Console.WriteLine("Token is valid: " + jWTTokenManager.ValidateToken(rsaKeyGenerator.GetPublicKeyPem()));
+
+    Aes256KeyGenerator aes256KeyGenerator = new();
+
+    Console.WriteLine("AES Key: " + aes256KeyGenerator.Key);
+    Console.WriteLine("AES IV: " + aes256KeyGenerator.IV);
 }
 
 
