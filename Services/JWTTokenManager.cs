@@ -58,7 +58,10 @@ namespace AsymmetricEncryptionNet.Services
                     ValidIssuer = issuer, 
                     ValidAudience = audience, 
                     IssuerSigningKey = new RsaSecurityKey(rsa)
-                };
+                    {
+                        CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
+                    }
+            };
 
                 // Create a token handler for validation
                 var tokenHandler = new JwtSecurityTokenHandler();
@@ -80,7 +83,10 @@ namespace AsymmetricEncryptionNet.Services
         private string GenerateToken()
         {
             // Set up the signing credentials using RSA
-            var signingCredentials = new SigningCredentials(new RsaSecurityKey(_rsa), SecurityAlgorithms.RsaSha256);
+            var signingCredentials = new SigningCredentials(new RsaSecurityKey(_rsa), SecurityAlgorithms.RsaSha256)
+            {
+                CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
+            };
 
             // Define the claims for the token
             var claims = new[]
