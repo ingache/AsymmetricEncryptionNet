@@ -1,5 +1,7 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Serialization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection.PortableExecutable;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
@@ -17,7 +19,7 @@ namespace AsymmetricEncryptionNet.Services
         private readonly RSA _rsa;
         
         // Publicly accessible property to get the generated token
-        public string Token { get; }
+        public string Token { get; set; }
 
         // Constructor that takes a private key in PEM format
         public JwtTokenManager(string privateKeyPEM)
@@ -61,15 +63,21 @@ namespace AsymmetricEncryptionNet.Services
                     {
                         CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
                     }
-            };
+                };
 
                 // Create a token handler for validation
                 var tokenHandler = new JwtSecurityTokenHandler();
                 // Validate the token
                 tokenHandler.ValidateToken(Token, validationParameters, out var validatedToken);
+                
+                DateTime validTo = tokenHandler.ReadJwtToken(Token).ValidTo.ToUniversalTime();
+                DateTime now = DateTime.UtcNow;
 
-                // Return true if token is valid, false otherwise
-                return validatedToken != null;
+                Console.WriteLine("Token Valid to: " + validTo);
+                Console.WriteLine("Current time:   " + now);
+
+                return ((DateTime.Compare(now, validTo) == -1 ) && (validatedToken != null));
+
             }
             catch (Exception ex)
             {
@@ -79,14 +87,20 @@ namespace AsymmetricEncryptionNet.Services
             }
         }
 
+        public void RegenerateToken()
+        {
+
+            // Generate the JWT token
+            Token = GenerateToken();
+
+        }
+
         // Generates a JWT token with specified claims and signing credentials
         private string GenerateToken()
         {
-            // Set up the signing credentials using RSA
-            var signingCredentials = new SigningCredentials(new RsaSecurityKey(_rsa), SecurityAlgorithms.RsaSha256)
-            {
-                CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
-            };
+            //{
+            //    CryptoProviderFactory = new CryptoProviderFactory { CacheSignatureProviders = false }
+            //};
 
             // Define the claims for the token
             var claims = new[]
@@ -99,13 +113,14 @@ namespace AsymmetricEncryptionNet.Services
                  issuer: this.issuer,
                  audience: this.audience,
                  claims: claims,
-                 expires: DateTime.UtcNow.AddDays(1),
-                 signingCredentials: signingCredentials
+                 notBefore: DateTime.UtcNow,
+                 expires: DateTime.UtcNow.AddSeconds(2),
+                 signingCredentials: new SigningCredentials(new RsaSecurityKey(_rsa), SecurityAlgorithms.RsaSha256)
             );
 
-            // Create a token handler and write the token
-            var tokenHandler = new JwtSecurityTokenHandler();
-            return tokenHandler.WriteToken(token);
+            var tokenStr = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return tokenStr;
         }
     }
 }

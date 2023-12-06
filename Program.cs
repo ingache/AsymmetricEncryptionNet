@@ -31,36 +31,19 @@ if (enableVault)
 
     Console.WriteLine("Token is valid: " + jWTTokenManager.ValidateToken(publicSecret.Value));
 }
-else {
+else
+{
     RsaKeyGenerator rsaKeyGenerator = new();
 
     JwtTokenManager jWTTokenManager = new(rsaKeyGenerator.GetPrivateKeyPEM());
 
     Console.WriteLine("Token: " + jWTTokenManager.Token);
+
+    Thread.Sleep(5000);
+
+    jWTTokenManager.RegenerateToken();
+
     Console.WriteLine("Token: " + jWTTokenManager.Token);
 
-    Console.WriteLine("Token plain text: " + jWTTokenManager.DecodeToken());
-
-    Console.WriteLine("Private key: " + rsaKeyGenerator.GetPrivateKeyPEM());
-
-    Console.WriteLine("Public key: " + rsaKeyGenerator.GetPublicKeyPem());
-
-    Console.WriteLine("Token is valid: " + jWTTokenManager.ValidateToken(rsaKeyGenerator.GetPublicKeyPem()));
-    Console.WriteLine("Token is valid: " + jWTTokenManager.ValidateToken(rsaKeyGenerator.GetPublicKeyPem()));
-
-    Aes256KeyGenerator aes256KeyGenerator = new();
-
-    Console.WriteLine("AES Key: " + aes256KeyGenerator.Key);
-    Console.WriteLine("AES IV: " + aes256KeyGenerator.IV);
+    Console.WriteLine("Token is valid: " + jWTTokenManager.ValidateToken(rsaKeyGenerator.GetPrivateKeyPEM()).ToString());
 }
-
-
-
-
-
-
-
-
-
-
-
